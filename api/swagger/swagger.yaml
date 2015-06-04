@@ -18,12 +18,20 @@ consumes:
 produces:
   - application/json
 x-a127-config: {}
-x-a127-services: {}
+x-a127-services: 
+# simple quota example that only allows 2 requests per minute
+  quota:     
+    provider: volos-quota-memory
+    options:
+      timeUnit: minute
+      interval: 1
+      allow: 2 
 paths:
   /hello:
     # binds a127 app logic to a route
     x-swagger-router-controller: hello_world
-    x-a127-apply: {}
+    x-a127-apply: 
+      quota: {}
     get:
       description: Returns 'Hello' to the caller
       # used as the method name of the controller
