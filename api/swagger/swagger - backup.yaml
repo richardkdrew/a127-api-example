@@ -1,0 +1,194 @@
+swagger: "2.0"
+info:
+  description: This is the documentation for the Expense Management functionality exposed by the Fraedom.com API.
+  version: "1.0.0"
+  title: Fraedom API
+  contact:
+    name: apiteam@fraedom.com
+# during dev, should point to your local machine
+host: localhost:10010
+# basePath prefixes all resource paths 
+basePath: /v1
+schemes:
+  # tip: remove http to make production-grade
+  - http
+  - https
+# format of bodies a client can send (Content-Type)
+consumes:
+  - application/json
+# format of the responses to the client (Accepts)
+produces:
+  - application/json 
+x-a127-config: {}
+x-a127-services:
+# simple quota example that only allows 2 requests per minute
+  quota:     
+    provider: volos-quota-memory
+    options:
+      timeUnit: minute
+      interval: 1
+      allow: 2 
+paths:
+  /cardtransactions:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: transactions
+    x-a127-apply: 
+      quota: {}
+    get:
+      tags:
+        - transactions
+      summary: Finds all card transactions for a given employee within the context of the current company.
+      description: 'Returns a list of `Card Transaction` items for the `Employee` supplied.'
+      operationId: getCardTransactions
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: employeeId
+          description: The id of the `Employee` you need to retrieve the Card Transaction items for.
+          required: true
+          type: string
+          default: '123456789'
+        - in: query
+          name: startDate
+          description: The start date to use as part of the transaction search criteria (defaults to 1 month ago)
+          required: false
+          type: string
+          format: date-time
+          default: '2015-05-01T00:00:00Z'
+        - in: query
+          name: endDate
+          description: The end date to use as part of the transaction search criteria (defaults to Now)
+          required: false
+          type: string
+          format: date-time
+          default: '2015-06-01T00:00:00Z'
+        - in: query
+          name: limit
+          description: The number of items to retrieve (per page. Defaults to 100)
+          required: false
+          type: number
+          default: 100
+        - in: query
+          name: offset
+          description: The number of items to offset by (to get the next/previous page. Defaults to 0 - the first page)
+          required: false
+          type: number
+          default: 0
+        - in: query
+          name: fields
+          description: An additional fields requried (outside the default)
+          required: false
+          type: array
+          items:
+            type: string
+            enum:
+              - postingDate
+              - status
+              - tax
+              - receipt
+            default: test1
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: "#/definitions/CardTransactionsResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+definitions:
+  CardTransactionsResponse:
+    type: object
+    description: The response for a `Card Transaction` get request
+    required:
+      - metadata
+      - transactions
+    properties:
+      metadata:
+        $ref: '#/definitions/ResponseMetadata'
+      transactions:
+        type: array
+        description: List of `Card Transaction` items
+        items:
+          $ref: '#/definitions/CardTransaction'
+  CardTransaction:
+    type: object
+    description: A single `Card Transaction` item
+    required:
+      - transactionRef
+      - transactionDate
+      - amount
+      - description
+    properties:
+      transactionRef:
+        type: string
+        description: Transaction Reference Number
+        example: C11120111108exmlcfrwo
+      transactionDate:
+        type: string
+        format: date-time
+        description: The actual date the transaction was incurred
+        example: '2015-05-05T02:58:33.456Z'
+      amount:
+        type: number
+        format: double
+        description: The amount of the transaction
+        example: '100.00'
+      description:
+        type: string
+        description: A description of the transaction
+        example: Purchase of some items for a meeting
+      postingDate:
+        type: string
+        format: date-time
+        description: The date the transaction was posted to the system
+        example: '2015-05-10T00:56:45.572Z'
+      tax:
+        type: number
+        format: double
+        description: The tax amount of the transaction
+        example: '20.00'
+      receipt:
+        type: boolean
+        description: Whether there is a receipt attached
+      status:
+        type: string
+        description: The current status of the Transaction
+        example: Pending Approval
+  ResponseMetadata:
+    type: object
+    required:
+      - limit
+      - offset
+      - total
+    properties:
+      limit: 
+        type: integer
+        format: int32
+        description: The number of results returned (per page)
+      offset: 
+        type: integer
+        format: int32
+        description: The position the resutls start at (the page number)
+      total: 
+        type: integer
+        format: int64
+        description: The total number of items available that meet the criteria supplied (number of results)
+  ErrorResponse:
+    type: object
+    description: A standardised error response
+    required:
+      - developerMessage
+      - errorCode
+    properties:
+      developerMessage:
+        type: string
+        description: A slightly more detailed error message for use by developers (problem diagnoses, etc...)
+      userMessage:
+        type: string
+        description: A general error message that can be used to notify the end user of the problem
+      errorCode:
+        type: integer
+        format: int32
+        description: An error code representing the error being experienced
