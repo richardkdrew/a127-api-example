@@ -29,7 +29,7 @@ function getExampleResourceById (req, res) {
     var id = req.swagger.params.id.value || 0;
 
     // Make sure the ID is valid
-    if(id.match(/^\d+$/)) res.send(500, { error: "Invalid Example Resource ID supplied" });
+    //if(id.match(/^\d+$/)) res.send(500, { error: "Invalid Example Resource ID supplied" });
 
     // Fake error responses
     if(id > fakeTotal) res.send(404, { error: "Example Resource not found" });
