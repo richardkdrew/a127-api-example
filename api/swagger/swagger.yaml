@@ -27,41 +27,135 @@ x-a127-services:
       interval: 1
       allow: 2 
 paths:
-  /hello:
-    # binds a127 app logic to a route
-    x-swagger-router-controller: hello_world
+  /exampleresources:
+    x-swagger-router-controller: example_resources
     x-a127-apply: 
       quota: {}
     get:
-      description: Returns 'Hello' to the caller
-      # used as the method name of the controller
-      operationId: hello
+      tags:
+        - ExampleResources
+      summary: Finds all example resources.
+      description: 'Returns a list of `Example Resource` items'
+      operationId: getExampleResources
+      produces:
+        - application/json
       parameters:
-        - name: name
-          in: query
-          description: The name of the person to whom to say hello
+        - in: query
+          name: limit
+          description: The number of items to retrieve (per page. Defaults to 10)
           required: false
-          type: string
+          type: integer
+          format: int32
+          default: 10
+        - in: query
+          name: offset
+          description: The number of items to offset by (to get the next/previous page. Defaults to 0 - the first page)
+          required: false
+          type: integer
+          format: int32
+          default: 0
       responses:
         "200":
           description: Success
           schema:
-            # a pointer to a definition
-            $ref: "#/definitions/HelloWorldResponse"
-        # responses may fall through to errors
+            $ref: "#/definitions/ExampleResourcesResponse"
+        "500":
+          description: Invalid limit or offset supplied
+          schema: {}
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /exampleresources/{id}:
+    x-swagger-router-controller: example_resources
+    x-a127-apply: 
+      quota: {}
+    get:
+      tags:
+        - ExampleResources
+      summary: Finds a single example resources item using the id supplied.
+      description: 'Returns a single `Example Resource` item'
+      operationId: getExampleResourceById
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: The id of the `Example Resource` to retrieve
+          required: true
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/ExampleResource"
+        "404":
+          description: Example Resource not found
+          schema: {}
+        "500":
+          description: Invalid Example Resource ID supplied
+          schema: {}
         default:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
 # complex objects have schema definitions
 definitions:
-  HelloWorldResponse:
+# response object defintions (includes paging, arrays of entities, etc...
+  ExampleResourcesResponse:
+    type: object
+    description: The response for an `Example Resource` get request
     required:
-      - message
+      - paging
+      - resources
     properties:
-      message:
+      paging:
+        $ref: '#/definitions/Paging'
+      resources:
+        type: array
+        description: List of `Example Resource` items
+        items:
+          $ref: '#/definitions/ExampleResource'
+# entities schema definitions
+  ExampleResource:
+    type: object
+    description: An `Example Resource` item
+    required:
+      - id
+      - title
+    properties:
+      id: 
+        type: integer
+        format: int64
+        description: The id for the `Example Resource`
+      title:
         type: string
+        description: The title for the `Example Resource`
+    
+# general schema definitions
+  Paging:
+    type: object
+    description: The paging details for the response
+    required:
+      - limit
+      - offset
+      - total
+    properties:
+      limit: 
+        type: integer
+        format: int32
+        description: The number of results returned (per page)
+      offset: 
+        type: integer
+        format: int32
+        description: The position the resutls start at (the page number)
+      total: 
+        type: integer
+        format: int64
+        description: The total number of items available that meet the criteria supplied (number of results)
   ErrorResponse:
+    description: The error details for the response
     required:
       - message
     properties:
