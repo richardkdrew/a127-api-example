@@ -28,3 +28,9 @@ node_modules
 
 # WebStorm stuff
 .idea
+
+# a127 Apigee stuff
+config/.a127_env
+config/.a127_secrets
+
+*.DS_Store

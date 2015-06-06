@@ -1,23 +1,18 @@
 'use strict';
 
 module.exports = {
-    quotaHelper: quotaHelper
+    setQuotaKey: setQuotaKey,
+    setCacheKey: setCacheKey
 };
 
-function quotaHelper(req) {
-    /*
-    console.log(req);
-
-
-    var key = req.swagger.params.name.value;
+function setQuotaKey(req) {
+    var key = req.swagger.params.apiKey.value;
     console.log('Quota Key: ' + key);
     return key;
-     */
-    var response = {
-        "developerMessage": "This is the developer message for 'Exceeding your quota'",
-        "userMessage": "This is the end user message for 'Exceeding your quota'",
-        "errorCode": 403
-    };
+}
 
-    return response;
+function setCacheKey(req) {
+    var key = req.swagger.params.apiKey.value;
+    console.log('Cache Key: ' + key);
+    return key;
 }

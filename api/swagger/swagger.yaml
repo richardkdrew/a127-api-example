@@ -1,7 +1,7 @@
 swagger: "2.0"
 info:
-  version: "0.0.1"
-  title: Hello World App
+  version: "1.0.0"
+  title: API Example
 # during dev, should point to your local machine
 host: localhost:10010
 # basePath prefixes all resource paths 
@@ -19,27 +19,44 @@ produces:
   - application/json
 x-a127-config: {}
 x-a127-services: 
-# simple quota example that only allows 2 requests per minute
+# simple quota example
   quota:     
     provider: volos-quota-memory
     options:
       timeUnit: minute
       interval: 1
       allow: 2 
+# simple cache example
+  cache:     
+    provider: volos-cache-memory
+    options:
+      ttl: 60000
 paths:
   /exampleresources:
     x-swagger-router-controller: example_resources
     x-a127-apply: 
-      quota: {}
+      quota: 
+        key:
+          helper: volos
+          function: setQuotaKey
+      cache: 
+        key:
+          helper: volos
+          function: setCacheKey
     get:
       tags:
         - ExampleResources
-      summary: Finds all example resources.
-      description: 'Returns a list of `Example Resource` items'
+      summary: Finds all Example Resources.
+      description: Returns a list of `Example Resource` items using the criteria supplied.
       operationId: getExampleResources
       produces:
         - application/json
       parameters:
+        - in: query
+          name: apiKey
+          description: A fake API Key to use for key based cache and rate limiting examples
+          required: true
+          type: string
         - in: query
           name: limit
           description: The number of items to retrieve (per page. Defaults to 10)
@@ -66,22 +83,62 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
+    post:
+      tags:
+        - ExampleResources
+      summary: Creates a new Example Resource.
+      description: Saves a new `Example Resource` item using the values supplied.
+      operationId: postExampleResource
+      parameters:
+        - in: query
+          name: apiKey
+          description: A fake API Key to use for key based cache and rate limiting examples
+          required: true
+          type: string
+        - name: resource
+          in: body
+          description: The Example Resource
+          required: true
+          schema: 
+            $ref: "#/definitions/ExampleResource"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/ExampleResource"
+        default:
+          description: Error
+          schema: {}
   /exampleresources/{id}:
     x-swagger-router-controller: example_resources
     x-a127-apply: 
-      quota: {}
+      quota: 
+        key:
+          helper: volos
+          function: setQuotaKey
+      cache: 
+        key:
+          helper: volos
+          function: setCacheKey
     get:
       tags:
         - ExampleResources
-      summary: Finds a single example resources item using the id supplied.
-      description: 'Returns a single `Example Resource` item'
+      summary: Finds a single Example Resource.
+      description: Returns a single `Example Resource` item using the id supplied.
       operationId: getExampleResourceById
       produces:
         - application/json
       parameters:
+        - in: query
+          name: apiKey
+          description: A fake API Key to use for key based cache and rate limiting examples
+          required: true
+          type: string
         - name: id
           in: path
-          description: The id of the `Example Resource` to retrieve
+          description: The id of the Example Resource to retrieve
           required: true
           type: integer
           format: int64
@@ -105,7 +162,7 @@ definitions:
 # response object defintions (includes paging, arrays of entities, etc...
   ExampleResourcesResponse:
     type: object
-    description: The response for an `Example Resource` get request
+    description: The response for an Example Resource get request
     required:
       - paging
       - resources
@@ -114,13 +171,13 @@ definitions:
         $ref: '#/definitions/Paging'
       resources:
         type: array
-        description: List of `Example Resource` items
+        description: List of Example Resource items
         items:
           $ref: '#/definitions/ExampleResource'
 # entities schema definitions
   ExampleResource:
     type: object
-    description: An `Example Resource` item
+    description: An Example Resource item
     required:
       - id
       - title
@@ -128,10 +185,10 @@ definitions:
       id: 
         type: integer
         format: int64
-        description: The id for the `Example Resource`
+        description: The id for the Example Resource
       title:
         type: string
-        description: The title for the `Example Resource`
+        description: The title for the Example Resource
     
 # general schema definitions
   Paging:
