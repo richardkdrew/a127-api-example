@@ -1,8 +1,9 @@
 'use strict';
 
 module.exports = {
-    setQuotaKey: setQuotaKey,
-    setCacheKey: setCacheKey
+    setQuotaKey         :   setQuotaKey,
+    setCacheKey         :   setCacheKey,
+    setSpikeArrestKey   :   setSpikeArrestKey
 };
 
 function setQuotaKey(req) {
@@ -14,5 +15,11 @@ function setQuotaKey(req) {
 function setCacheKey(req) {
     var key = req.swagger.params.apiKey.value;
     console.log('Cache Key: ' + key);
+    return key;
+}
+
+function setSpikeArrestKey(req) {
+    var key = req.connection.remoteAddress;
+    console.log('Spike Arrest Key: ' + key);
     return key;
 }

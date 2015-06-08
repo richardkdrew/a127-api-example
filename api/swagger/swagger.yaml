@@ -23,14 +23,21 @@ x-a127-services:
   quota:     
     provider: volos-quota-memory
     options:
-      timeUnit: minute
+      timeUnit: day
       interval: 1
-      allow: 2 
+      allow: 100
 # simple cache example
   cache:     
     provider: volos-cache-memory
     options:
       ttl: 60000
+# simple spike arrest example
+  spikearrest:
+    provider: "volos-spikearrest-memory"
+    options:
+      timeUnit: "minute"
+      #bufferSize: 3
+      allow: 10
 paths:
   /exampleresources:
     x-swagger-router-controller: example_resources
@@ -39,10 +46,14 @@ paths:
         key:
           helper: volos
           function: setQuotaKey
-      cache: 
+      cache:
         key:
           helper: volos
           function: setCacheKey
+      spikearrest:
+        key:
+          helper: volos
+          function: setSpikeArrestKey
     get:
       tags:
         - ExampleResources
@@ -113,15 +124,19 @@ paths:
           schema: {}
   /exampleresources/{id}:
     x-swagger-router-controller: example_resources
-    x-a127-apply: 
-      quota: 
+    x-a127-apply:
+      quota:
         key:
           helper: volos
           function: setQuotaKey
-      cache: 
+      cache:
         key:
           helper: volos
           function: setCacheKey
+      spikearrest:
+        key:
+          helper: volos
+          function: setSpikeArrestKey
     get:
       tags:
         - ExampleResources

@@ -1,3 +1,6 @@
+# IDE files
+.idea
+
 # Logs
 logs
 *.log
@@ -16,21 +19,21 @@ coverage
 # Grunt intermediate storage (http://gruntjs.com/creating-plugins#storing-task-files)
 .grunt
 
-# node-waf configuration
-.lock-wscript
-
 # Compiled binary addons (http://nodejs.org/api/addons.html)
 build/Release
 
 # Dependency directory
+# Commenting this out is preferred by some people, see
 # https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git
 node_modules
 
-# WebStorm stuff
-.idea
+# Users Environment Variables
+.lock-wscript
 
-# a127 Apigee stuff
+# Apigee 127 deployment
 config/.a127_env
 config/.a127_secrets
+config/.a127_services
 
+# Mac stuff
 *.DS_Store
