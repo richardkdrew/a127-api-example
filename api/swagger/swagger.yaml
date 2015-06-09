@@ -17,7 +17,9 @@ consumes:
 # format of the responses to the client (Accepts)
 produces:
   - application/json
-x-a127-config: {}
+x-a127-config:
+  ExampleRemoteProxy.key: &apigeeProxyKey CONFIGURED
+  ExampleRemoteProxy.uri: &apigeeProxyUri CONFIGURED
 x-a127-services: 
 # simple quota example
   quota:     
@@ -33,11 +35,21 @@ x-a127-services:
       ttl: 60000
 # simple spike arrest example
   spikearrest:
-    provider: "volos-spikearrest-memory"
+    provider: volos-spikearrest-memory
     options:
-      timeUnit: "minute"
+      timeUnit: minute
       #bufferSize: 3
       allow: 10
+# simple analytics example
+  analytics:
+     provider: volos-analytics-apigee
+     options:
+       key: *apigeeProxyKey
+       uri: *apigeeProxyUri
+       proxy: ExampleRemoteProxy
+       bufferSize: 100
+       flushInterval: 10
+       batchSize: 10
 paths:
   /exampleresources:
     x-swagger-router-controller: example_resources
@@ -54,6 +66,7 @@ paths:
         key:
           helper: volos
           function: setSpikeArrestKey
+      analytics: {}
     get:
       tags:
         - ExampleResources
@@ -137,6 +150,7 @@ paths:
         key:
           helper: volos
           function: setSpikeArrestKey
+      analytics: {}
     get:
       tags:
         - ExampleResources

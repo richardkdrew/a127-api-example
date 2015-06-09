@@ -10,10 +10,11 @@ module.exports = {
 function getExampleResources (req, res) {
 
     // Use the mock controller for fake data until there's a real endpoint available
-    //var response = mockController.getExampleResources(req, res);
+    var response = mockController.getExampleResources(req, res);
 
-    //res.send(response);
+    res.send(response);
 
+    /*
     res.json({
         "paging": {
             "limit": 0,
@@ -21,7 +22,7 @@ function getExampleResources (req, res) {
                 "total": 0
         },
         "resources": []
-    });
+    });*/
 }
 
 function getExampleResourceById (req, res) {
